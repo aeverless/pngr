@@ -10,7 +10,7 @@ PNG::PNG(std::istream& is) : is(is)
 	open(is);
 }
 
-void PNG::open(std::istream& is)
+void PNG::open(std::istream& is) &
 {
 	is.seekg(0);
 
@@ -112,17 +112,17 @@ PNG::~PNG()
 	png_destroy_read_struct(&cache, &info, &end_info);
 }
 
-[[nodiscard]] size_t PNG::width() const noexcept
+[[nodiscard]] size_t PNG::width() const& noexcept
 {
 	return metadata.width;
 }
 
-[[nodiscard]] size_t PNG::height() const noexcept
+[[nodiscard]] size_t PNG::height() const& noexcept
 {
 	return metadata.height;
 }
 
-[[nodiscard]] color::Value PNG::get(math::Vector const& position) const noexcept
+[[nodiscard]] color::Value PNG::get(math::Vector const& position) const& noexcept
 {
 	if (pixels_per_byte > 1)
 	{
@@ -136,7 +136,7 @@ PNG::~PNG()
 		) & pixel_mask;
 }
 
-void PNG::set(math::Vector const& position, color::Value const value) const noexcept
+void PNG::set(math::Vector const& position, color::Value const value) const& noexcept
 {
 	if (pixels_per_byte > 1)
 	{
@@ -151,7 +151,7 @@ void PNG::set(math::Vector const& position, color::Value const value) const noex
 	bytes = (bytes & ~pixel_mask) | (memory::to_big_endian(value, number_of_channels) & pixel_mask);
 }
 
-void PNG::save(std::ostream& os) const
+void PNG::save(std::ostream& os) const&
 {
 	png_struct* write_cache = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!write_cache)

@@ -9,7 +9,7 @@ Drawer::Drawer(Image& image) : img(image) {}
 void Drawer::point(
 	math::Vector const& position,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	if (0 <= position.x && position.x < img.width() && 0 <= position.y && position.y < img.height())
 	{
@@ -21,7 +21,7 @@ void Drawer::fill(
 	math::Vector const& first,
 	math::Vector const& last,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	math::Vector const& start(img.bind(first));
 	math::Vector const& end(img.bind(last));
@@ -42,7 +42,7 @@ void Drawer::line_horizontal(
 	int64_t const x_left,
 	int64_t const x_right,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	if (0 > y || y >= img.height())
 	{
@@ -57,7 +57,7 @@ void Drawer::line_vertical(
 	int64_t const y_top,
 	int64_t const y_bottom,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	if (0 > x || x >= img.width())
 	{
@@ -76,7 +76,7 @@ void Drawer::line(
 	color::Value const value,
 	size_t const width,
 	size_t const height
-) const noexcept
+) const& noexcept
 {
 	int64_t const dy = end.y - start.y;
 	int64_t const dx = end.x - start.x;
@@ -125,7 +125,7 @@ void Drawer::solid(
 	math::Vector const& start,
 	math::Vector const& end,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	size_t const y_start = img.bind_y(start.y);
 	size_t const y_end = img.bind_y(end.y);
@@ -148,7 +148,7 @@ void Drawer::rectangle(
 	color::Value const stroke_value,
 	bool const with_diagonals,
 	size_t const diagonal_thickness
-) const noexcept
+) const& noexcept
 {
 	size_t const y_start = img.bind_y(start.y);
 	size_t const y_end = img.bind_y(end.y);
@@ -200,7 +200,7 @@ void Drawer::rectangle_filled(
 	color::Value const fill_value,
 	bool const with_diagonals,
 	size_t const diagonal_thickness
-) const noexcept
+) const& noexcept
 {
 	math::Vector const solid_offset{stroke_thickness, stroke_thickness};
 	solid(start + solid_offset, end - solid_offset, fill_value);
@@ -214,7 +214,7 @@ void Drawer::square(
 	color::Value const stroke_value,
 	bool const with_diagonals,
 	size_t const diagonal_thickness
-) const noexcept
+) const& noexcept
 {
 	rectangle(
 		start,
@@ -234,7 +234,7 @@ void Drawer::square_filled(
 	color::Value const fill_value,
 	bool const with_diagonals,
 	size_t const diagonal_thickness
-) const noexcept
+) const& noexcept
 {
 	rectangle_filled(
 		start,
@@ -252,7 +252,7 @@ void Drawer::circle(
 	math::Vector const& end,
 	size_t const stroke_thickness,
 	color::Value const stroke_value
-) const noexcept
+) const& noexcept
 {
 	size_t const dx = end.x - start.x;
 	size_t const dy = end.y - start.y;
@@ -301,7 +301,7 @@ void Drawer::circle(
 	size_t const radius,
 	size_t const stroke_thickness,
 	color::Value const stroke_value
-) const noexcept
+) const& noexcept
 {
 	math::Vector const offset{radius, radius};
 	circle(center - offset, center + offset, stroke_thickness, stroke_value);
@@ -313,7 +313,7 @@ void Drawer::circle_filled(
 	size_t const stroke_thickness,
 	color::Value const stroke_value,
 	color::Value const fill_value
-) const noexcept
+) const& noexcept
 {
 	math::Vector const offset{stroke_thickness, stroke_thickness};
 	circle(start + offset, end - offset, -1, fill_value);
@@ -326,7 +326,7 @@ void Drawer::circle_filled(
 	size_t const stroke_thickness,
 	color::Value const stroke_value,
 	color::Value const fill_value
-) const noexcept
+) const& noexcept
 {
 	math::Vector const offset{radius, radius};
 	circle(center - offset, center + offset, -1, fill_value);
@@ -338,7 +338,7 @@ void Drawer::slice(
 	size_t const column_count,
 	size_t const thickness,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	double const dx = static_cast<double>(img.width()) / column_count;
 	double const dy = static_cast<double>(img.height()) / row_count;
@@ -357,7 +357,7 @@ void Drawer::slice(
 void Drawer::color_filter(
 	color::ChannelIndex const channel,
 	color::Value const value
-) const noexcept
+) const& noexcept
 {
 	for (size_t i = 0; i < img.width() * img.height(); i++)
 	{

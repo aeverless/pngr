@@ -53,15 +53,15 @@ public:
 	explicit PNG(std::istream& is);
 	~PNG();
 
-	void open(std::istream& is) override;
+	void open(std::istream& is) & override;
 
-	[[nodiscard]] size_t width() const noexcept override;
-	[[nodiscard]] size_t height() const noexcept override;
+	[[nodiscard]] size_t width() const& noexcept override;
+	[[nodiscard]] size_t height() const& noexcept override;
 
-	[[nodiscard]] color::Value get(math::Vector const& position) const noexcept override;
-	void set(math::Vector const& position, color::Value const value) const noexcept override;
+	[[nodiscard]] color::Value get(math::Vector const& position) const& noexcept override;
+	void set(math::Vector const& position, color::Value const value) const& noexcept override;
 
-	void save(std::ostream& os) const override;
+	void save(std::ostream& os) const& override;
 };
 }
 
