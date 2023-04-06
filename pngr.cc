@@ -82,7 +82,7 @@ int main(int const argc, char** const argv)
 
 				char const* const option_name = cli::options[option_index].name;
 
-				math::Vector const position(cli::vector_from_string(optarg, cli::point_delimiter));
+				math::Vector const position(cli::string_to_vector(optarg, cli::point_delimiter));
 
 				if (!strcmp(option_name, "start"))
 				{

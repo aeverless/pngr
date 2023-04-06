@@ -105,7 +105,7 @@ option const options[]{
 	{nullptr,     0,                 nullptr, 0},
 };
 
-[[nodiscard]] extern math::Vector const vector_from_string(char const* const str, char const* const delimiter);
+[[nodiscard]] extern math::Vector const string_to_vector(char const* const str, char const* const delimiter);
 [[nodiscard]] extern bool is_hex(char const* const value) noexcept;
 }
 

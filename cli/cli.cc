@@ -6,7 +6,7 @@
 
 namespace cli
 {
-[[nodiscard]] math::Vector const vector_from_string(char const* const str, char const* const delimiter)
+[[nodiscard]] math::Vector const string_to_vector(char const* const str, char const* const delimiter)
 {
 	std::string const s(str);
 	size_t const delimiter_index = s.find(delimiter);
