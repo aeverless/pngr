@@ -1,7 +1,6 @@
 #ifndef PNGR_MATH_H_
 #define PNGR_MATH_H_
 
-#include <algorithm>
 #include <cstdint>
 
 
