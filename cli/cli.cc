@@ -1,43 +1,43 @@
 #include "./cli.hh"
 #include "../lib/math.hh"
-#include <string>
+#include "../lib/conv.hh"
 #include <stdexcept>
 
 
 namespace cli
 {
-[[nodiscard]] math::Vector const string_to_vector(char const* const str, char const* const delimiter)
+[[nodiscard]] bool is_hex(std::string_view const str) noexcept
 {
-	std::string const s(str);
-	size_t const delimiter_index = s.find(delimiter);
+	std::size_t const length = str.length();
 
-	if (delimiter_index == std::string::npos)
-	{
-		throw std::runtime_error("no delimiter found in argument");
-	}
-
-	return math::Vector{
-		std::stoll(s.substr(0, delimiter_index)),
-		std::stoll(s.substr(delimiter_index + 1))
-	};
-}
-
-[[nodiscard]] bool is_hex(char const* const value) noexcept
-{
-	if (strlen(value) <= 2 || strncmp(value, "0x", 2))
+	if (length <= 2 || str.substr(0, 2) != "0x")
 	{
 		return false;
 	}
 
-	for (size_t i = 2; i < strlen(value); i++)
+	for (auto it = std::next(str.begin(), 2); it != str.end(); it++)
 	{
-		char const& c = tolower(value[i]);
-		if (!isdigit(c) && ('a' > c || c > 'f'))
+		if (char const& ch = tolower(*it); !isdigit(ch) && ('a' > ch || ch > 'f'))
 		{
 			return false;
 		}
 	}
 
 	return true;
+}
+
+[[nodiscard]] math::Vector const string_to_vector(std::string_view const str, std::string_view const delimiter)
+{
+	std::size_t const delimiter_index = str.find(delimiter);
+
+	if (delimiter_index == std::string_view::npos)
+	{
+		throw std::invalid_argument("no delimiter found in str");
+	}
+
+	return math::Vector{
+		conv::string_to_integer<std::int64_t>(str.substr(0, delimiter_index)).value_or(0),
+		conv::string_to_integer<std::int64_t>(str.substr(delimiter_index + 1)).value_or(0),
+	};
 }
 }

@@ -14,7 +14,7 @@ void PNG::open(std::istream& is) &
 {
 	is.seekg(0);
 
-	uint64_t header;
+	std::uint64_t header;
 	io::read_endian(is, header, arch::Endian::Big);
 
 	if (header != signature)
@@ -42,7 +42,7 @@ void PNG::open(std::istream& is) &
 
 	if (setjmp(png_jmpbuf(cache)))
 	{
-		throw std::runtime_error("error while setting jmp location");
+		throw std::runtime_error("could not set jmp location before reading");
 	}
 
 	png_set_sig_bytes(cache, sizeof(header));
@@ -50,7 +50,7 @@ void PNG::open(std::istream& is) &
 	png_set_read_fn(
 		cache,
 		&is,
-		[] (png_struct* cache, uint8_t* data, size_t size)
+		[] (png_struct* cache, std::uint8_t* data, std::size_t size)
 		{
 			reinterpret_cast<std::istream*>(png_get_io_ptr(cache))->read(reinterpret_cast<char*>(data), size);
 		}
@@ -93,10 +93,10 @@ void PNG::open(std::istream& is) &
 
 	png_read_update_info(cache, info);
 
-	rows.reset(new uint8_t*[metadata.height]);
-	for (size_t i = 0; i < metadata.height; i++)
+	rows = std::make_unique<std::uint8_t*[]>(metadata.height);
+	for (std::size_t i = 0; i < metadata.height; i++)
 	{
-		rows.get()[i] = new uint8_t[png_get_rowbytes(cache, info)];
+		rows.get()[i] = new std::uint8_t[png_get_rowbytes(cache, info)];
 	}
 
 	png_read_image(cache, rows.get());
@@ -104,7 +104,7 @@ void PNG::open(std::istream& is) &
 
 PNG::~PNG()
 {
-	for (size_t i = 0; i < metadata.height; i++)
+	for (std::size_t i = 0; i < metadata.height; i++)
 	{
 		delete[] rows.get()[i];
 	}
@@ -112,12 +112,12 @@ PNG::~PNG()
 	png_destroy_read_struct(&cache, &info, &end_info);
 }
 
-[[nodiscard]] size_t PNG::width() const& noexcept
+[[nodiscard]] std::size_t PNG::width() const& noexcept
 {
 	return metadata.width;
 }
 
-[[nodiscard]] size_t PNG::height() const& noexcept
+[[nodiscard]] std::size_t PNG::height() const& noexcept
 {
 	return metadata.height;
 }
@@ -126,7 +126,6 @@ PNG::~PNG()
 {
 	if (pixels_per_byte > 1)
 	{
-		size_t const offset = (position.x % pixels_per_byte) * pixel_stride;
 		return rows.get()[position.y][position.x / pixels_per_byte] & (pixel_mask << ((position.x % pixels_per_byte) * pixel_stride));
 	}
 
@@ -140,8 +139,8 @@ void PNG::set(math::Vector const& position, color::Value const value) const& noe
 {
 	if (pixels_per_byte > 1)
 	{
-		size_t const offset = (position.x % pixels_per_byte) * pixel_stride;
-		uint8_t& byte = rows.get()[position.y][position.x / pixels_per_byte];
+		std::size_t const offset = (position.x % pixels_per_byte) * pixel_stride;
+		std::uint8_t& byte = rows.get()[position.y][position.x / pixels_per_byte];
 		byte = (byte & ~(pixel_mask << offset)) | ((value & pixel_mask) << offset);
 
 		return;
@@ -167,13 +166,13 @@ void PNG::save(std::ostream& os) const&
 
 	if (setjmp(png_jmpbuf(write_cache)))
 	{
-		throw std::runtime_error("error while setting jmp location");
+		throw std::runtime_error("could not set jmp location before writing");
 	}
 
 	png_set_write_fn(
 		write_cache,
 		&os,
-		[] (png_struct* write_cache, uint8_t* data, size_t size)
+		[] (png_struct* write_cache, std::uint8_t* data, std::size_t size)
 		{
 			reinterpret_cast<std::ostream*>(png_get_io_ptr(write_cache))->write(reinterpret_cast<char*>(data), size);
 		},

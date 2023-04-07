@@ -3,6 +3,7 @@
 #include "./lib/image/drawer.hh"
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 
 [[noreturn]] static inline void graceful_exit() noexcept
@@ -10,13 +11,13 @@
 	exit(0);
 }
 
-[[noreturn]] static inline void print_and_exit(char const* const str) noexcept
+[[noreturn]] static inline void print_and_exit(std::string_view const str) noexcept
 {
 	std::cout << str << std::endl;
 	graceful_exit();
 }
 
-[[noreturn]] static inline void print_error_and_exit(char const* const str) noexcept
+[[noreturn]] static inline void print_error_and_exit(std::string_view const str) noexcept
 {
 	std::cerr << "error: " << str << '\n' << cli::invalid_usage_hint << std::endl;
 	graceful_exit();
@@ -27,9 +28,9 @@
 	print_and_exit(cli::help_message);
 }
 
-int main(int const argc, char** const argv)
+int main(int const argc, char* const argv[])
 {
-	if (argc <= cli::min_number_of_arguments)
+	if (static_cast<std::size_t>(argc) <= cli::min_number_of_arguments)
 	{
 		print_help_and_exit();
 	}
@@ -50,26 +51,27 @@ int main(int const argc, char** const argv)
 	math::Vector start(cli::start_default);
 	math::Vector end(cli::end_default);
 
-	const char* const filepath_in = argv[cli::input_file_index];
-	if (!strlen(filepath_in) || filepath_in[0] == '-')
+	char const* const filepath_in = argv[cli::input_file_index];
+	if (!std::strlen(filepath_in) || filepath_in[0] == '-')
 	{
 		print_help_and_exit();
 	}
 
 	char const* filepath_out = nullptr;
 
-	size_t radius = cli::radius_default;
-	size_t thickness = cli::thickness_default;
-	size_t width = cli::width_default;
-	size_t height = cli::height_default;
+	std::size_t radius = cli::radius_default;
+	std::size_t thickness = cli::thickness_default;
+	std::size_t width = cli::width_default;
+	std::size_t height = cli::height_default;
 
 	char const* error_message = nullptr;
 
-	int option_index = cli::input_file_index;
-	int opt;
 	try
 	{
-		while ((opt = getopt_long(argc, argv, "ho:f:d:C:F:T:W:H:R:", cli::options, &option_index)) != -1)
+		int option_index = cli::input_file_index;
+		int opt;
+
+		while ((opt = getopt_long(argc, argv, cli::short_options, cli::options, &option_index)) != -1)
 		{
 			switch (opt)
 			{
@@ -80,17 +82,17 @@ int main(int const argc, char** const argv)
 					print_help_and_exit();
 				}
 
-				char const* const option_name = cli::options[option_index].name;
-
 				math::Vector const position(cli::string_to_vector(optarg, cli::point_delimiter));
 
-				if (!strcmp(option_name, "start"))
+				char const* const option_name = cli::options[option_index].name;
+
+				if (!std::strcmp(option_name, "start"))
 				{
 					start = position;
 					break;
 				}
 
-				if (!strcmp(option_name, "end"))
+				if (!std::strcmp(option_name, "end"))
 				{
 					if (shape == cli::Shape::Point)
 					{
@@ -106,7 +108,7 @@ int main(int const argc, char** const argv)
 					print_help_and_exit();
 				}
 
-				if (!strcmp(option_name, "center"))
+				if (!std::strcmp(option_name, "center"))
 				{
 					center = position;
 					break;
@@ -128,7 +130,7 @@ int main(int const argc, char** const argv)
 
 				mode = cli::Mode::Filter;
 
-				size_t const length = strlen(optarg);
+				std::size_t const length = std::strlen(optarg);
 
 				if (length < 1)
 				{
@@ -137,12 +139,20 @@ int main(int const argc, char** const argv)
 
 				if (length == 1)
 				{
-					channel = std::string("rgba").find(tolower(optarg[0]));
+					if (char const* const ptr = std::strchr(cli::truecolor_channels, tolower(optarg[0])); ptr)
+					{
+						channel = ptr - cli::truecolor_channels;
+						break;
+					}
 				}
 
-				if (length > 1 || channel == std::string::npos)
+				if (std::size_t index = std::stoull(optarg); index >= std::strlen(cli::truecolor_channels))
 				{
-					channel = std::stoull(optarg);
+					print_error_and_exit("channel index out of bounds");
+				}
+				else
+				{
+					channel = index;
 				}
 
 				break;
@@ -156,22 +166,22 @@ int main(int const argc, char** const argv)
 
 				mode = cli::Mode::Draw;
 
-				if (!strcmp(optarg, "point"))
+				if (!std::strcmp(optarg, "point"))
 				{
 					shape = cli::Shape::Point;
 				}
 				else
-				if (!strcmp(optarg, "line"))
+				if (!std::strcmp(optarg, "line"))
 				{
 					shape = cli::Shape::Line;
 				}
 				else
-				if (!strcmp(optarg, "rect") || !strcmp(optarg, "rectangle"))
+				if (!std::strcmp(optarg, "rect") || !std::strcmp(optarg, "rectangle"))
 				{
 					shape = cli::Shape::Rectangle;
 				}
 				else
-				if (!strcmp(optarg, "circle"))
+				if (!std::strcmp(optarg, "circle"))
 				{
 					shape = cli::Shape::Circle;
 				}
@@ -243,11 +253,11 @@ int main(int const argc, char** const argv)
 	}
 	catch (std::out_of_range const& e)
 	{
-		error_message = "argument number out of bounds";
+		error_message = "argument out of bounds";
 	}
 	catch (std::invalid_argument const& e)
 	{
-		error_message = "argument is not a valid number";
+		error_message = "invalid argument";
 	}
 	catch (std::exception const& e)
 	{
@@ -307,9 +317,9 @@ int main(int const argc, char** const argv)
 			break;
 
 		case cli::Shape::Circle:
-			if (start != end || start != math::Vector{})
+			if (start != end || start != cli::start_default)
 			{
-				if (radius != 1)
+				if (radius != cli::radius_default)
 				{
 					print_error_and_exit("circle bounds (start, end) and radius cannot specified together");
 				}
@@ -317,23 +327,31 @@ int main(int const argc, char** const argv)
 				if (!is_secondary_value_specified)
 				{
 					dw.circle(start, end, thickness, primary_value);
-					break;
 				}
-
-				dw.circle_filled(start, end, thickness, primary_value, secondary_value);
+				else
+				{
+					dw.circle_filled(start, end, thickness, primary_value, secondary_value);
+				}
 				break;
 			}
 
 			if (!is_secondary_value_specified)
 			{
-				dw.circle(center, radius, width, primary_value);
-				break;
+				dw.circle(center, radius, thickness, primary_value);
+			}
+			else
+			{
+				dw.circle_filled(center, radius, thickness, primary_value, secondary_value);
 			}
 
-			dw.circle_filled(center, radius, width, primary_value, secondary_value);
+			break;
+
+		case cli::Shape::None:
+		default:
 			break;
 		}
 	}
+
 	std::ofstream os(filepath_out, std::ios::out | std::ios::binary);
 	img.save(os);
 

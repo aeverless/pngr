@@ -9,11 +9,11 @@ namespace math
 {
 struct Vector
 {
-	int64_t x;
-	int64_t y;
+	std::int64_t x;
+	std::int64_t y;
 
 	template <typename X, typename Y>
-	explicit Vector(X const& x, Y const& y) : x(static_cast<int64_t>(x)), y(static_cast<int64_t>(y)) {}
+	explicit Vector(X const& x, Y const& y) : x(static_cast<std::int64_t>(x)), y(static_cast<std::int64_t>(y)) {}
 
 	Vector() : Vector(0, 0) {}
 
@@ -48,12 +48,6 @@ struct Vector
 		return Vector{x * value, y * value};
 	}
 };
-
-template <typename T>
-[[nodiscard]] static inline constexpr T const& clamp(T const& value, T const& low, T const& high) noexcept
-{
-	return std::min(high, std::max(low, value));
-}
 }
 
 #endif

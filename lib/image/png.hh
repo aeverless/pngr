@@ -8,9 +8,9 @@
 
 namespace image::png
 {
-constexpr uint64_t signature = 0x89504E470D0A1A0A;
+constexpr std::uint64_t signature = 0x89504E470D0A1A0A;
 
-enum ColorType : uint8_t
+enum ColorType : std::uint8_t
 {
 	GS = 0,
 	RGB = 2,
@@ -21,31 +21,31 @@ enum ColorType : uint8_t
 
 struct Metadata
 {
-	uint32_t width;
-	uint32_t height;
+	std::uint32_t width;
+	std::uint32_t height;
 
 	ColorType color_type;
 
-	uint8_t compression_method;
-	uint8_t filter_method;
-	uint8_t interlace_method;
+	std::uint8_t compression_method;
+	std::uint8_t filter_method;
+	std::uint8_t interlace_method;
 };
 
 class PNG : public Image
 {
 	Metadata metadata{};
 
-	std::unique_ptr<uint8_t*> rows;
+	std::unique_ptr<std::uint8_t*[]> rows;
 
 	png_struct* cache;
 	png_info* info;
 	png_info* end_info;
 
-	size_t number_of_passes;
+	std::size_t number_of_passes;
 
 	color::Value pixel_mask;
-	size_t pixel_stride;
-	size_t pixels_per_byte;
+	std::size_t pixel_stride;
+	std::size_t pixels_per_byte;
 
 	std::istream& is;
 
@@ -55,8 +55,8 @@ public:
 
 	void open(std::istream& is) & override;
 
-	[[nodiscard]] size_t width() const& noexcept override;
-	[[nodiscard]] size_t height() const& noexcept override;
+	[[nodiscard]] std::size_t width() const& noexcept override;
+	[[nodiscard]] std::size_t height() const& noexcept override;
 
 	[[nodiscard]] color::Value get(math::Vector const& position) const& noexcept override;
 	void set(math::Vector const& position, color::Value const value) const& noexcept override;

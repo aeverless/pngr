@@ -2,9 +2,8 @@
 #define PNGR_CLI_H_
 
 #include "../lib/math.hh"
+#include <string_view>
 #include <getopt.h>
-#include <cstring>
-#include <cctype>
 
 
 namespace cli
@@ -39,24 +38,28 @@ constexpr char const* help_message =
 	"\nNote on options:\n"
 	"\t(flag) - optional flag, doesn't have an argument.\n"
 	"\tOptions with an integral argument may support hexadecimal numbers that must be prefixed with `0x`.\n"
-	"\tAn option is required if and only if it is not a flag and no default value is specified for it.";
+	"\tAn option is considered required if and only if it is not a flag and no default value is specified for it.";
 
 constexpr char const* invalid_usage_hint = "see --help for details on usage";
 
 constexpr char const* point_delimiter = ",";
 
-constexpr size_t input_file_index = 1;
+constexpr char const* truecolor_channels = "rgba";
 
-constexpr size_t min_number_of_arguments = input_file_index + 1;
+constexpr std::size_t input_file_index = 1;
 
-constexpr size_t radius_default = 1;
-constexpr size_t thickness_default = 1;
-constexpr size_t width_default = 1;
-constexpr size_t height_default = 1;
+constexpr std::size_t min_number_of_arguments = input_file_index + 1;
+
+constexpr std::size_t radius_default = 1;
+constexpr std::size_t thickness_default = 1;
+constexpr std::size_t width_default = 1;
+constexpr std::size_t height_default = 1;
 
 math::Vector const center_default;
 math::Vector const start_default;
 math::Vector const end_default;
+
+constexpr char const* short_options = "ho:f:d:C:F:T:W:H:R:";
 
 enum ShortOption : char
 {
@@ -105,8 +108,8 @@ option const options[]{
 	{nullptr,     0,                 nullptr, 0},
 };
 
-[[nodiscard]] extern math::Vector const string_to_vector(char const* const str, char const* const delimiter);
-[[nodiscard]] extern bool is_hex(char const* const value) noexcept;
+[[nodiscard]] extern bool is_hex(std::string_view const str) noexcept;
+[[nodiscard]] extern math::Vector const string_to_vector(std::string_view const str, std::string_view const delimiter);
 }
 
 #endif

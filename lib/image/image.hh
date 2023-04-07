@@ -12,22 +12,22 @@ namespace image
 class Image
 {
 protected:
-	size_t number_of_pixels;
-	size_t number_of_channels;
+	std::size_t number_of_pixels;
+	std::size_t number_of_channels;
 
-	size_t bit_depth;
+	std::size_t bit_depth;
 
 public:
 	virtual void open(std::istream& is) & = 0;
 
-	virtual size_t width() const& noexcept = 0;
-	virtual size_t height() const& noexcept = 0;
+	virtual std::size_t width() const& noexcept = 0;
+	virtual std::size_t height() const& noexcept = 0;
 
-	[[nodiscard]] size_t index(math::Vector const& position) const& noexcept;
-	[[nodiscard]] math::Vector const coordinates(size_t const i) const& noexcept;
+	[[nodiscard]] std::size_t index(math::Vector const& position) const& noexcept;
+	[[nodiscard]] math::Vector const coordinates(std::size_t const i) const& noexcept;
 
-	[[nodiscard]] size_t bind_x(int64_t const x) const& noexcept;
-	[[nodiscard]] size_t bind_y(int64_t const y) const& noexcept;
+	[[nodiscard]] std::size_t bind_x(std::int64_t const x) const& noexcept;
+	[[nodiscard]] std::size_t bind_y(std::int64_t const y) const& noexcept;
 	[[nodiscard]] math::Vector const bind(math::Vector const& position) const& noexcept;
 
 	[[nodiscard]] virtual color::Value get(math::Vector const& position) const& noexcept = 0;

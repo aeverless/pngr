@@ -6,8 +6,8 @@
 
 namespace color
 {
-using Value = uint64_t;
-using ChannelIndex = size_t;
+using Value = std::uint64_t;
+using ChannelIndex = std::size_t;
 
 namespace grayscale
 {
