@@ -64,19 +64,19 @@ void PNG::open(std::istream& is) &
 	metadata.color_type = static_cast<ColorType>(png_get_color_type(cache, info));
 	switch (metadata.color_type)
 	{
-		case ColorType::GS:
-		case ColorType::Indexed:
-			number_of_channels = 1;
-			break;
-		case ColorType::GSA:
-			number_of_channels = 2;
-			break;
-		case ColorType::RGB:
-			number_of_channels = 3;
-			break;
-		case ColorType::RGBA:
-			number_of_channels = 4;
-			break;
+	case ColorType::GS:
+	case ColorType::Indexed:
+		number_of_channels = 1;
+		break;
+	case ColorType::GSA:
+		number_of_channels = 2;
+		break;
+	case ColorType::RGB:
+		number_of_channels = 3;
+		break;
+	case ColorType::RGBA:
+		number_of_channels = 4;
+		break;
 	}
 
 	bit_depth = png_get_bit_depth(cache, info);
