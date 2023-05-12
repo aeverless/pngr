@@ -1,5 +1,7 @@
 #include "./image.hh"
 
+#include <algorithm>
+
 
 namespace image
 {
@@ -8,7 +10,7 @@ namespace image
 	return position.x + position.y * width();
 }
 
-[[nodiscard]] math::Vector const Image::coordinates(std::size_t const i) const& noexcept
+[[nodiscard]] math::Vector Image::coordinates(std::size_t const i) const& noexcept
 {
 	return math::Vector{i % width(), i / width()};
 }
@@ -23,7 +25,7 @@ namespace image
 	return static_cast<size_t>(std::clamp(y, static_cast<std::int64_t>(0), static_cast<std::int64_t>(height()) - 1));
 }
 
-[[nodiscard]] math::Vector const Image::bind(math::Vector const& position) const& noexcept
+[[nodiscard]] math::Vector Image::bind(math::Vector const& position) const& noexcept
 {
 	return math::Vector{bind_x(position.x), bind_y(position.y)};
 }

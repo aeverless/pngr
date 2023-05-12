@@ -11,7 +11,7 @@ namespace conv
 template <typename T>
 [[nodiscard]] std::optional<T> string_to_integer(std::string_view const str) noexcept
 {
-	static_assert(std::is_integral<T>());
+	static_assert(std::is_integral_v<T>);
 
 	if (T value; std::from_chars(str.begin(), str.end(), value).ec == std::errc{})
 	{

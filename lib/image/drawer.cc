@@ -1,4 +1,6 @@
 #include "./drawer.hh"
+
+#include <algorithm>
 #include <cmath>
 
 

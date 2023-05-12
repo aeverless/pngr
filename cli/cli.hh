@@ -2,6 +2,7 @@
 #define PNGR_CLI_H_
 
 #include "../lib/math.hh"
+
 #include <string_view>
 #include <getopt.h>
 
@@ -109,7 +110,7 @@ option const options[]{
 };
 
 [[nodiscard]] extern bool is_hex(std::string_view const str) noexcept;
-[[nodiscard]] extern math::Vector const string_to_vector(std::string_view const str, std::string_view const delimiter);
+[[nodiscard]] extern math::Vector string_to_vector(std::string_view const str, std::string_view const delimiter);
 }
 
 #endif

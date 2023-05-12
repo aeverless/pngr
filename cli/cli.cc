@@ -1,6 +1,6 @@
 #include "./cli.hh"
-#include "../lib/math.hh"
 #include "../lib/conv.hh"
+
 #include <stdexcept>
 
 
@@ -15,9 +15,9 @@ namespace cli
 		return false;
 	}
 
-	for (auto it = std::next(str.begin(), 2); it != str.end(); it++)
+	for (auto it = std::next(str.begin(), 2); it != str.end(); ++it)
 	{
-		if (char const& ch = tolower(*it); !isdigit(ch) && ('a' > ch || ch > 'f'))
+		if (char const& ch = std::tolower(*it); !std::isdigit(ch) && ('a' > ch || ch > 'f'))
 		{
 			return false;
 		}
@@ -26,7 +26,7 @@ namespace cli
 	return true;
 }
 
-[[nodiscard]] math::Vector const string_to_vector(std::string_view const str, std::string_view const delimiter)
+[[nodiscard]] math::Vector string_to_vector(std::string_view const str, std::string_view const delimiter)
 {
 	std::size_t const delimiter_index = str.find(delimiter);
 

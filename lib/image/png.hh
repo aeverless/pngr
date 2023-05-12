@@ -2,6 +2,7 @@
 #define PNGR_IMAGE_PNG_H_
 
 #include "./image.hh"
+
 #include <memory>
 #include <png.h>
 

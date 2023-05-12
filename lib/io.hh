@@ -2,6 +2,7 @@
 #define PNGR_IO_H_
 
 #include "./memory.hh"
+
 #include <istream>
 #include <ostream>
 
@@ -24,9 +25,9 @@ static inline std::istream& read_endian(std::istream& is, T& destination, arch::
 }
 
 template <typename T>
-static inline std::ostream& write(std::ostream& os, T const& source, std::size_t const count = 0)
+static inline std::ostream& write(std::ostream& os, T const& value, std::size_t const count = 0)
 {
-	return os.write(reinterpret_cast<char const* const>(&source), count ? count : sizeof(source));
+	return os.write(reinterpret_cast<char const* const>(&value), count ? count : sizeof(value));
 }
 }
 
