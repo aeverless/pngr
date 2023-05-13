@@ -108,17 +108,13 @@ void Drawer::line(
 
 	for (std::int64_t y = y_start; y <= y_end; y++)
 	{
-		std::int64_t const x_start =
-			y == start.y ? start.x : bind_x(start.x + step_width * (y - start.y) - ((dx < 0) * (width - 1)));
-		std::int64_t const x_end =
-			y == end.y ? end.x : bind_x(x_start + step_width + ((dx >= 0) * (width - 1)));
-
-		std::int64_t const x_left  = dx >= 0 ? x_start : x_end;
-		std::int64_t const x_right = dx >= 0 ? x_end : x_start;
+		std::int64_t const x = start.x + step_width * (y - start.y);
+		std::int64_t const x_start = bind_x(x - ((dx < 0) * (width - 1)));
+		std::int64_t const x_end = bind_x(x + ((dx >= 0) * (width - 1)));
 
 		for (std::size_t y_offset = 0; y_offset < height; y_offset++)
 		{
-			line_horizontal(y + y_offset, x_left, x_right, value);
+			line_horizontal(y + y_offset, x_start, x_end, value);
 		}
 	}
 }
