@@ -1,7 +1,7 @@
 #ifndef PNGR_IO_H_
 #define PNGR_IO_H_
 
-#include "./memory.hh"
+#include "memory.hh"
 
 #include <istream>
 #include <ostream>

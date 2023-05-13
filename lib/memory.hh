@@ -1,7 +1,7 @@
 #ifndef PNGR_MEMORY_H_
 #define PNGR_MEMORY_H_
 
-#include "./arch.hh"
+#include "arch.hh"
 
 
 namespace memory

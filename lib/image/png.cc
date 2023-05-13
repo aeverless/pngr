@@ -1,4 +1,4 @@
-#include "./png.hh"
+#include "png.hh"
 #include "../io.hh"
 
 #include <memory>

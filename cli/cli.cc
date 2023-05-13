@@ -1,4 +1,4 @@
-#include "./cli.hh"
+#include "cli.hh"
 #include "../lib/conv.hh"
 
 #include <stdexcept>

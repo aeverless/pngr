@@ -1,7 +1,7 @@
 #ifndef PNGR_IMAGE_DRAWER_H_
 #define PNGR_IMAGE_DRAWER_H_
 
-#include "./image.hh"
+#include "image.hh"
 
 
 namespace image

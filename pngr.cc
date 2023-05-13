@@ -1,6 +1,7 @@
-#include "./cli/cli.hh"
-#include "./lib/image/png.hh"
-#include "./lib/image/drawer.hh"
+#include "cli/cli.hh"
+#include "lib/image/png.hh"
+#include "lib/image/drawer.hh"
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
