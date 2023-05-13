@@ -329,6 +329,12 @@ int main(int const argc, char* const argv[])
 
 	image::png::PNG img(is);
 
+	std::size_t const color_depth = img.color_depth();
+	if (primary_value >= color_depth || secondary_value >= color_depth)
+	{
+		print_error_and_exit("color value higher than color depth");
+	}
+
 	image::Drawer dw(img);
 
 	switch (mode)

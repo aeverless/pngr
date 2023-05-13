@@ -23,33 +23,33 @@ void PNG::open(std::istream& is) &
 		throw std::runtime_error("invalid png signature");
 	}
 
-	cache = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-	if (!cache)
+	png_struct* read_cache = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (!read_cache)
 	{
 		throw std::runtime_error("could not create read cache");
 	}
 
-	info = png_create_info_struct(cache);
-	if (!info)
+	png_info* read_info = png_create_info_struct(read_cache);
+	if (!read_info)
 	{
 		throw std::runtime_error("could not create read info");
 	}
 
-	end_info = png_create_info_struct(cache);
-	if (!end_info)
+	png_info* read_info_end = png_create_info_struct(read_cache);
+	if (!read_info_end)
 	{
 		throw std::runtime_error("could not finish creating read info");
 	}
 
-	if (setjmp(png_jmpbuf(cache)))
+	if (setjmp(png_jmpbuf(read_cache)))
 	{
-		throw std::runtime_error("could not set jmp location before reading");
+		throw std::runtime_error("error while reading");
 	}
 
-	png_set_sig_bytes(cache, sizeof(header));
+	png_set_sig_bytes(read_cache, sizeof(header));
 
 	png_set_read_fn(
-		cache,
+		read_cache,
 		&is,
 		[] (png_struct* cache, std::uint8_t* data, std::size_t size)
 		{
@@ -57,16 +57,20 @@ void PNG::open(std::istream& is) &
 		}
 	);
 
-	png_read_info(cache, info);
+	png_read_info(read_cache, read_info);
 
-	metadata.width = png_get_image_width(cache, info);
-	metadata.height = png_get_image_height(cache, info);
+	metadata.width = png_get_image_width(read_cache, read_info);
+	metadata.height = png_get_image_height(read_cache, read_info);
 
-	metadata.color_type = static_cast<ColorType>(png_get_color_type(cache, info));
+	metadata.color_type = static_cast<ColorType>(png_get_color_type(read_cache, read_info));
 	switch (metadata.color_type)
 	{
-	case ColorType::GS:
 	case ColorType::Indexed:
+		if (!png_get_PLTE(read_cache, read_info, &palette, &palette_size))
+		{
+			throw std::runtime_error("could not read palette");
+		}
+	case ColorType::GS:
 		number_of_channels = 1;
 		break;
 	case ColorType::GSA:
@@ -80,27 +84,30 @@ void PNG::open(std::istream& is) &
 		break;
 	}
 
-	bit_depth = png_get_bit_depth(cache, info);
+	bit_depth = png_get_bit_depth(read_cache, read_info);
 
 	pixel_mask = (static_cast<color::Value>(1) << (number_of_channels * bit_depth)) - 1;
 	pixel_stride = (number_of_channels * bit_depth + 7) / 8;
-	pixels_per_byte = 8 / bit_depth;
+	pixels_per_byte = 8 / (bit_depth * number_of_channels);
 
-	metadata.compression_method = png_get_compression_type(cache, info);
-	metadata.filter_method = png_get_filter_type(cache, info);
-	metadata.interlace_method = png_get_interlace_type(cache, info);
+	metadata.compression_method = png_get_compression_type(read_cache, read_info);
+	metadata.filter_method = png_get_filter_type(read_cache, read_info);
+	metadata.interlace_method = png_get_interlace_type(read_cache, read_info);
 
-	number_of_passes = png_set_interlace_handling(cache);
+	number_of_passes = png_set_interlace_handling(read_cache);
 
-	png_read_update_info(cache, info);
+	png_read_update_info(read_cache, read_info);
 
 	rows = std::make_unique<std::uint8_t*[]>(metadata.height);
 	for (std::size_t i = 0; i < metadata.height; i++)
 	{
-		rows.get()[i] = new std::uint8_t[png_get_rowbytes(cache, info)];
+		rows.get()[i] = new std::uint8_t[png_get_rowbytes(read_cache, read_info)];
 	}
 
-	png_read_image(cache, rows.get());
+	png_read_image(read_cache, rows.get());
+	png_read_end(read_cache, read_info);
+
+	png_destroy_read_struct(&read_cache, &read_info, &read_info_end);
 }
 
 PNG::~PNG()
@@ -109,8 +116,16 @@ PNG::~PNG()
 	{
 		delete[] rows.get()[i];
 	}
+}
 
-	png_destroy_read_struct(&cache, &info, &end_info);
+[[nodiscard]] std::size_t PNG::color_depth() const& noexcept
+{
+	if (metadata.color_type == ColorType::Indexed)
+	{
+		return palette_size;
+	}
+
+	return static_cast<std::size_t>(1) << (bit_depth * number_of_channels);
 }
 
 [[nodiscard]] std::size_t PNG::width() const& noexcept
@@ -167,7 +182,8 @@ void PNG::save(std::ostream& os) const&
 
 	if (setjmp(png_jmpbuf(write_cache)))
 	{
-		throw std::runtime_error("could not set jmp location before writing");
+		png_destroy_write_struct(&write_cache, &write_info);
+		throw std::runtime_error("error while writing");
 	}
 
 	png_set_write_fn(
@@ -195,9 +211,15 @@ void PNG::save(std::ostream& os) const&
 		metadata.filter_method
 	);
 
+	if (metadata.color_type == ColorType::Indexed)
+	{
+		png_set_PLTE(write_cache, write_info, palette, palette_size);
+	}
+
 	png_write_info(write_cache, write_info);
 	png_write_image(write_cache, rows.get());
 	png_write_end(write_cache, write_info);
+
 	png_destroy_write_struct(&write_cache, &write_info);
 }
 }

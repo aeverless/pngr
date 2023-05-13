@@ -1,7 +1,7 @@
 #ifndef PNGR_COLOR_H_
 #define PNGR_COLOR_H_
 
-#include <cstdint>
+#include <cstddef>
 
 
 namespace color

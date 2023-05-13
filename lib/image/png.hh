@@ -38,9 +38,8 @@ class PNG : public Image
 
 	std::unique_ptr<std::uint8_t*[]> rows;
 
-	png_struct* cache;
-	png_info* info;
-	png_info* end_info;
+	png_color* palette;
+	int palette_size;
 
 	std::size_t number_of_passes;
 
@@ -55,6 +54,8 @@ public:
 	~PNG();
 
 	void open(std::istream& is) & override;
+
+	[[nodiscard]] std::size_t color_depth() const& noexcept override;
 
 	[[nodiscard]] std::size_t width() const& noexcept override;
 	[[nodiscard]] std::size_t height() const& noexcept override;

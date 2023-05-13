@@ -24,6 +24,8 @@ public:
 	virtual std::size_t width() const& noexcept = 0;
 	virtual std::size_t height() const& noexcept = 0;
 
+	[[nodiscard]] virtual std::size_t color_depth() const& noexcept = 0;
+
 	[[nodiscard]] std::size_t index(math::Vector const& position) const& noexcept;
 	[[nodiscard]] math::Vector coordinates(std::size_t const i) const& noexcept;
 
