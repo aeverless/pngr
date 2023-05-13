@@ -309,7 +309,7 @@ int main(int const argc, char* const argv[])
 			break;
 
 		case cli::Shape::Rectangle:
-			if (is_secondary_value_specified)
+			if (!is_secondary_value_specified)
 			{
 				dw.rectangle(start, end, thickness, primary_value);
 			}
