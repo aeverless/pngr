@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <optional>
 
 
 [[noreturn]] static inline void graceful_exit() noexcept
@@ -40,11 +41,9 @@ int main(int const argc, char* const argv[])
 
 	color::ChannelIndex channel;
 
-	bool is_primary_value_specified = false;
-	color::Value primary_value;
+	std::optional<color::Value> primary_value_opt;
 
-	bool is_secondary_value_specified = false;
-	color::Value secondary_value;
+	std::optional<color::Value> secondary_value_opt;
 
 	cli::Shape shape = cli::Shape::None;
 
@@ -194,8 +193,7 @@ int main(int const argc, char* const argv[])
 				break;
 
 			case cli::ShortOption::Color:
-				primary_value = std::stoull(optarg, 0, cli::is_hex(optarg) ? 16 : 10);
-				is_primary_value_specified = true;
+				primary_value_opt = std::stoull(optarg, 0, cli::is_hex(optarg) ? 16 : 10);
 				break;
 
 			case cli::ShortOption::Fill:
@@ -204,8 +202,7 @@ int main(int const argc, char* const argv[])
 					print_help_and_exit();
 				}
 
-				secondary_value = std::stoull(optarg, 0, cli::is_hex(optarg) ? 16 : 10);
-				is_secondary_value_specified = true;
+				secondary_value_opt = std::stoull(optarg, 0, cli::is_hex(optarg) ? 16 : 10);
 				break;
 
 			case cli::ShortOption::Thickness:
@@ -275,10 +272,15 @@ int main(int const argc, char* const argv[])
 		print_error_and_exit("no output file specified");
 	}
 
-	if (!is_primary_value_specified)
+	if (!primary_value_opt.has_value())
 	{
 		print_error_and_exit("no primary color specified");
 	}
+
+	color::Value const primary_value = primary_value_opt.value();
+
+	bool const is_secondary_value_specified = secondary_value_opt.has_value();
+	color::Value const secondary_value = secondary_value_opt.value_or(color::Value{});
 
 	std::ifstream is(filepath_in, std::ios::in | std::ios::binary);
 	if (!is.good())
@@ -307,7 +309,7 @@ int main(int const argc, char* const argv[])
 			break;
 
 		case cli::Shape::Rectangle:
-			if (!is_secondary_value_specified)
+			if (is_secondary_value_specified)
 			{
 				dw.rectangle(start, end, thickness, primary_value);
 			}
