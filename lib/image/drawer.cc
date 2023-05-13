@@ -43,7 +43,8 @@ void Drawer::line_horizontal(
 	std::int64_t const y,
 	std::int64_t const x_left,
 	std::int64_t const x_right,
-	color::Value const value
+	color::Value const value,
+	std::size_t const height
 ) const& noexcept
 {
 	if (0 > y || y >= img.height())
@@ -51,14 +52,18 @@ void Drawer::line_horizontal(
 		return;
 	}
 
-	fill(math::Vector{x_left, y}, math::Vector{x_right, y}, value);
+	for (std::size_t y_offset = 0; y_offset < height; ++y_offset)
+	{
+		fill(math::Vector{x_left, y + y_offset}, math::Vector{x_right, y + y_offset}, value);
+	}
 }
 
 void Drawer::line_vertical(
 	std::int64_t const x,
 	std::int64_t const y_top,
 	std::int64_t const y_bottom,
-	color::Value const value
+	color::Value const value,
+	std::size_t const width
 ) const& noexcept
 {
 	if (0 > x || x >= img.width())
@@ -68,7 +73,7 @@ void Drawer::line_vertical(
 
 	for (std::size_t y = img.bind_y(y_top); y <= img.bind_y(y_bottom); y++)
 	{
-		point(math::Vector{x, y}, value);
+		line_horizontal(y, x, x + width - 1, value);
 	}
 }
 
@@ -112,10 +117,7 @@ void Drawer::line(
 		std::int64_t const x_start = bind_x(x - ((dx < 0) * (width - 1)));
 		std::int64_t const x_end = bind_x(x + ((dx >= 0) * (width - 1)));
 
-		for (std::size_t y_offset = 0; y_offset < height; y_offset++)
-		{
-			line_horizontal(y + y_offset, x_start, x_end, value);
-		}
+		line_horizontal(y, x_start, x_end, value, height);
 	}
 }
 
@@ -343,12 +345,12 @@ void Drawer::slice(
 
 	for (std::size_t i = 1; i < row_count; i++)
 	{
-		line_horizontal(dy * i, 0, img.width() - 1, value);
+		line_horizontal(dy * i, 0, img.width(), value, thickness);
 	}
 
 	for (std::size_t i = 1; i < column_count; i++)
 	{
-		line_vertical(dx * i, 0, img.height() - 1, value);
+		line_vertical(dx * i, 0, img.height() - 1, value, thickness);
 	}
 }
 

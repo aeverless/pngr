@@ -42,14 +42,17 @@ int main(int const argc, char* const argv[])
 	color::ChannelIndex channel;
 
 	std::optional<color::Value> primary_value_opt;
-
 	std::optional<color::Value> secondary_value_opt;
+
+	bool with_diagonals = false;
 
 	cli::Shape shape = cli::Shape::None;
 
 	math::Vector center(cli::center_default);
 	math::Vector start(cli::start_default);
 	math::Vector end(cli::end_default);
+
+	math::Vector slice_dimensions(cli::slice_dimensions_default);
 
 	char const* const filepath_in = argv[cli::input_file_index];
 	if (!std::strlen(filepath_in) || filepath_in[0] == '-')
@@ -181,6 +184,11 @@ int main(int const argc, char* const argv[])
 					shape = cli::Shape::Rectangle;
 				}
 				else
+				if (!std::strcmp(optarg, "square"))
+				{
+					shape = cli::Shape::Rectangle;
+				}
+				else
 				if (!std::strcmp(optarg, "circle"))
 				{
 					shape = cli::Shape::Circle;
@@ -190,6 +198,16 @@ int main(int const argc, char* const argv[])
 					print_help_and_exit();
 				}
 
+				break;
+
+			case cli::ShortOption::Slice:
+				if (mode != cli::Mode::None)
+				{
+					print_help_and_exit();
+				}
+
+				mode = cli::Mode::Slice;
+				slice_dimensions = cli::string_to_vector(optarg, cli::point_delimiter);
 				break;
 
 			case cli::ShortOption::Color:
@@ -206,7 +224,7 @@ int main(int const argc, char* const argv[])
 				break;
 
 			case cli::ShortOption::Thickness:
-				if (shape != cli::Shape::Rectangle && shape != cli::Shape::Circle)
+				if (mode != cli::Mode::Slice && shape != cli::Shape::Rectangle && shape != cli::Shape::Circle)
 				{
 					print_help_and_exit();
 				}
@@ -222,6 +240,18 @@ int main(int const argc, char* const argv[])
 
 				radius = std::stoull(optarg);
 				break;
+
+			case cli::ShortOption::Side:
+			{
+				if (shape != cli::Shape::Rectangle)
+				{
+					print_help_and_exit();
+				}
+
+				std::size_t const side = std::stoull(optarg);
+				end = start + math::Vector{side, side};
+				break;
+			}
 
 			case cli::ShortOption::Width:
 				if (shape != cli::Shape::Line)
@@ -239,6 +269,15 @@ int main(int const argc, char* const argv[])
 				}
 
 				height = std::stoull(optarg);
+				break;
+
+			case cli::ShortOption::WithDiagonals:
+				if (shape != cli::Shape::Rectangle)
+				{
+					print_help_and_exit();
+				}
+
+				with_diagonals = true;
 				break;
 
 			case cli::ShortOption::Help:
@@ -292,12 +331,17 @@ int main(int const argc, char* const argv[])
 
 	image::Drawer dw(img);
 
-	if (mode == cli::Mode::Filter)
+	switch (mode)
 	{
+	case cli::Mode::Filter:
 		dw.color_filter(channel, primary_value);
-	}
-	else
-	{
+		break;
+
+	case cli::Mode::Slice:
+		dw.slice(slice_dimensions.x, slice_dimensions.y, thickness, primary_value);
+		break;
+
+	case cli::Mode::Draw:
 		switch (shape)
 		{
 		case cli::Shape::Point:
@@ -311,11 +355,11 @@ int main(int const argc, char* const argv[])
 		case cli::Shape::Rectangle:
 			if (!is_secondary_value_specified)
 			{
-				dw.rectangle(start, end, thickness, primary_value);
+				dw.rectangle(start, end, thickness, primary_value, with_diagonals);
 			}
 			else
 			{
-				dw.rectangle_filled(start, end, thickness, primary_value, secondary_value);
+				dw.rectangle_filled(start, end, thickness, primary_value, secondary_value, with_diagonals);
 			}
 			break;
 
@@ -353,6 +397,13 @@ int main(int const argc, char* const argv[])
 		default:
 			break;
 		}
+
+		break;
+
+	case cli::Mode::None:
+	default:
+		print_help_and_exit();
+		break;
 	}
 
 	std::ofstream os(filepath_out, std::ios::out | std::ios::binary);

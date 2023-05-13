@@ -28,14 +28,16 @@ public:
 		std::int64_t const y,
 		std::int64_t const x_left,
 		std::int64_t const x_right,
-		color::Value const value
+		color::Value const value,
+		std::size_t const height = 1
 	) const& noexcept;
 
 	void line_vertical(
 		std::int64_t const x,
 		std::int64_t const y_top,
 		std::int64_t const y_bottom,
-		color::Value const value
+		color::Value const value,
+		std::size_t const width = 1
 	) const& noexcept;
 
 	void line(
