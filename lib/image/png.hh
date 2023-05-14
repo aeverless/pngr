@@ -38,6 +38,10 @@ class PNG : public Image
 
 	std::unique_ptr<std::uint8_t*[]> rows;
 
+	png_struct* read_cache;
+	png_info* read_info;
+	png_info* read_info_end;
+
 	png_color* palette;
 	int palette_size;
 

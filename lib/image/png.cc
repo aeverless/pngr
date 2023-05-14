@@ -23,19 +23,19 @@ void PNG::open(std::istream& is) &
 		throw std::runtime_error("invalid png signature");
 	}
 
-	png_struct* read_cache = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	read_cache = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!read_cache)
 	{
 		throw std::runtime_error("could not create read cache");
 	}
 
-	png_info* read_info = png_create_info_struct(read_cache);
+	read_info = png_create_info_struct(read_cache);
 	if (!read_info)
 	{
 		throw std::runtime_error("could not create read info");
 	}
 
-	png_info* read_info_end = png_create_info_struct(read_cache);
+	read_info_end = png_create_info_struct(read_cache);
 	if (!read_info_end)
 	{
 		throw std::runtime_error("could not finish creating read info");
@@ -106,8 +106,6 @@ void PNG::open(std::istream& is) &
 
 	png_read_image(read_cache, rows.get());
 	png_read_end(read_cache, read_info);
-
-	png_destroy_read_struct(&read_cache, &read_info, &read_info_end);
 }
 
 PNG::~PNG()
@@ -116,6 +114,8 @@ PNG::~PNG()
 	{
 		delete[] rows.get()[i];
 	}
+
+	png_destroy_read_struct(&read_cache, &read_info, &read_info_end);
 }
 
 [[nodiscard]] std::size_t PNG::color_depth() const& noexcept
