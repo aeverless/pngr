@@ -13,6 +13,7 @@ constexpr char const* help_message =
 	"Usage:\n"
 	"\tpngr (--help)\n"
 	"\tpngr <path> --out <path> --filter <uint|[rgba]> --color <uint>\n"
+	"\tpngr <path> --out <path> --slice  <uint,uint>   --color <uint (--thickness <uint>)\n"
 	"\tpngr <path> --out <path> --draw   point         --color <uint> --start  <int,int>\n"
 	"\tpngr <path> --out <path> --draw   line          --color <uint> --start  <int,int> --end <int,int> (--width <uint>) (--height <uint>)\n"
 	"\tpngr <path> --out <path> --draw   circle        --color <uint> --start  <int,int> --end <int,int> (--fill  <uint>) (--thickness <uint>)\n"
