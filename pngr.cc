@@ -14,14 +14,14 @@
 }
 
 template <typename... Args>
-[[noreturn]] static inline void print_and_exit(Args const... args) noexcept
+[[noreturn]] static inline void print_and_exit(Args const&... args) noexcept
 {
 	(std::cout << ... << args) << std::endl;
 	graceful_exit();
 }
 
 template <typename... Args>
-[[noreturn]] static inline void print_error_and_exit(Args const... args) noexcept
+[[noreturn]] static inline void print_error_and_exit(Args const&... args) noexcept
 {
 	print_and_exit("error: ", args..., '\n', cli::invalid_usage_hint);
 }
