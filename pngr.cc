@@ -13,16 +13,17 @@
 	exit(0);
 }
 
-[[noreturn]] static inline void print_and_exit(std::string_view const str) noexcept
+template <typename... Args>
+[[noreturn]] static inline void print_and_exit(Args const... args) noexcept
 {
-	std::cout << str << std::endl;
+	(std::cout << ... << args) << std::endl;
 	graceful_exit();
 }
 
-[[noreturn]] static inline void print_error_and_exit(std::string_view const str) noexcept
+template <typename... Args>
+[[noreturn]] static inline void print_error_and_exit(Args const... args) noexcept
 {
-	std::cerr << "error: " << str << '\n' << cli::invalid_usage_hint << std::endl;
-	graceful_exit();
+	print_and_exit("error: ", args..., '\n', cli::invalid_usage_hint);
 }
 
 [[noreturn]] static inline void print_help_and_exit() noexcept
@@ -149,15 +150,7 @@ int main(int const argc, char* const argv[])
 					}
 				}
 
-				if (std::size_t index = std::stoull(optarg); index >= std::strlen(cli::truecolor_channels))
-				{
-					print_error_and_exit("channel index out of bounds");
-				}
-				else
-				{
-					channel = index;
-				}
-
+				channel = std::stoull(optarg);
 				break;
 			}
 
@@ -327,12 +320,27 @@ int main(int const argc, char* const argv[])
 		print_error_and_exit("could not open input file for read");
 	}
 
-	image::png::PNG img(is);
+	image::png::PNG img;
+
+	try
+	{
+		img.open(is);
+	}
+	catch (std::runtime_error const& e)
+	{
+		print_error_and_exit(e.what());
+	}
+
+	std::size_t channels = img.channels();
+	if (mode == cli::Mode::Filter && channel >= channels)
+	{
+		print_error_and_exit("channel index exceeding maximum (", channels, ")");
+	}
 
 	std::size_t const color_depth = img.color_depth();
 	if (primary_value >= color_depth || secondary_value >= color_depth)
 	{
-		print_error_and_exit("color value higher than color depth");
+		print_error_and_exit("color value exceeding maximum (", color_depth, ")");
 	}
 
 	image::Drawer dw(img);
@@ -413,7 +421,15 @@ int main(int const argc, char* const argv[])
 	}
 
 	std::ofstream os(filepath_out, std::ios::out | std::ios::binary);
-	img.save(os);
+
+	try
+	{
+		img.save(os);
+	}
+	catch (std::exception const& e)
+	{
+		print_error_and_exit(e.what());
+	}
 
 	return 0;
 }

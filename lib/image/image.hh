@@ -25,6 +25,7 @@ public:
 	virtual std::size_t height() const& noexcept = 0;
 
 	[[nodiscard]] virtual std::size_t color_depth() const& noexcept = 0;
+	[[nodiscard]] std::size_t channels() const& noexcept;
 
 	[[nodiscard]] std::size_t index(math::Vector const& position) const& noexcept;
 	[[nodiscard]] math::Vector coordinates(std::size_t const i) const& noexcept;

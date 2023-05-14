@@ -6,7 +6,7 @@
 
 namespace image::png
 {
-PNG::PNG(std::istream& is) : is(is)
+PNG::PNG(std::istream& is)
 {
 	open(is);
 }
@@ -66,7 +66,7 @@ void PNG::open(std::istream& is) &
 	switch (metadata.color_type)
 	{
 	case ColorType::Indexed:
-		if (!png_get_PLTE(read_cache, read_info, &palette, &palette_size))
+		if (!png_get_PLTE(read_cache, read_info, &palette, &palette_size) || !palette_size)
 		{
 			throw std::runtime_error("could not read palette");
 		}
@@ -213,12 +213,12 @@ void PNG::save(std::ostream& os) const&
 
 	if (metadata.color_type == ColorType::Indexed)
 	{
-		png_set_PLTE(write_cache, write_info, palette, palette_size);
+		png_set_PLTE(write_cache, write_info, palette, 1 << bit_depth);
 	}
 
 	png_write_info(write_cache, write_info);
 	png_write_image(write_cache, rows.get());
-	png_write_end(write_cache, write_info);
+	png_write_end(write_cache, nullptr);
 
 	png_destroy_write_struct(&write_cache, &write_info);
 }

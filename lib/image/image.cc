@@ -5,6 +5,11 @@
 
 namespace image
 {
+[[nodiscard]] std::size_t Image::channels() const& noexcept
+{
+	return number_of_channels;
+}
+
 [[nodiscard]] std::size_t Image::index(math::Vector const& position) const& noexcept
 {
 	return position.x + position.y * width();

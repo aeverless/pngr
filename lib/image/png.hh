@@ -51,10 +51,10 @@ class PNG : public Image
 	std::size_t pixel_stride;
 	std::size_t pixels_per_byte;
 
-	std::istream& is;
-
 public:
+	explicit PNG() noexcept = default;
 	explicit PNG(std::istream& is);
+
 	~PNG();
 
 	void open(std::istream& is) & override;
