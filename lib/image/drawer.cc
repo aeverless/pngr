@@ -109,13 +109,14 @@ void Drawer::line(
 		return std::clamp(x, line_x_left, line_x_right);
 	};
 
-	double const step_width = static_cast<double>(dx) / (dy + 1);
+	double const step_width = static_cast<double>(dx + (dx >= 0 ? 1 : -1)) / (dy + 1);
+	std::int64_t const total_additional_width = std::ceil(std::abs(step_width) + width - 2);
 
 	for (std::int64_t y = y_start; y <= y_end; y++)
 	{
-		std::int64_t const x = start.x + step_width * (y - start.y);
-		std::int64_t const x_start = bind_x(x - ((dx < 0) * (width - 1)));
-		std::int64_t const x_end = bind_x(x + ((dx >= 0) * (width - 1)));
+		double const x = start.x + step_width * (y - start.y);
+		std::int64_t const x_start = bind_x(x - (dx < 0) * total_additional_width);
+		std::int64_t const x_end = bind_x(x + (dx >= 0) * total_additional_width);
 
 		line_horizontal(y, x_start, x_end, value, height);
 	}
