@@ -10,7 +10,7 @@
 
 [[noreturn]] static inline void graceful_exit() noexcept
 {
-	exit(0);
+	std::exit(0);
 }
 
 template <typename... Args>
