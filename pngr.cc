@@ -204,7 +204,7 @@ int main(int const argc, char* const argv[])
 				break;
 
 			case cli::ShortOption::Color:
-				primary_value_opt = std::stoull(optarg, 0, cli::is_hex(optarg) ? 16 : 10);
+				primary_value_opt = std::stoull(optarg, nullptr, cli::is_hex(optarg) ? 16 : 10);
 				break;
 
 			case cli::ShortOption::Fill:
@@ -213,7 +213,7 @@ int main(int const argc, char* const argv[])
 					print_help_and_exit();
 				}
 
-				secondary_value_opt = std::stoull(optarg, 0, cli::is_hex(optarg) ? 16 : 10);
+				secondary_value_opt = std::stoull(optarg, nullptr, cli::is_hex(optarg) ? 16 : 10);
 				break;
 
 			case cli::ShortOption::Thickness:
